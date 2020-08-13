@@ -41,41 +41,49 @@ app.post('/address', (req, res) => {
       .status(400)
       .send('First Name required');
   }
+
   if (!lastName) {
     return res
       .status(400)
       .send('Last Name required');
   }
+
   if (!address1) {
     return res
       .status(400)
       .send('Address 1 required');
   }
+
   if (!city) {
     return res
       .status(400)
       .send('City required');
   }
+
   if (!state) {
     return res
       .status(400)
       .send('State required');
   }
-  if(state.length!==2) {
+
+  if(state.length!==2 || typeof state !== "number") {
     return res
       .status(400)
       .send('State must be two letter code');
   }
+
   if (!zip) {
     return res
       .status(400)
       .send('Zip required');
   }
+
   if (zip.length !==5 || typeof parseInt(zip) !== "number") {
     return res
       .status(400)
-      .send('Zip must be a 5 digit number');
+      .send('Zip code must be a 5 digit number');
   }
+
   const id = uuid();
   const newAddress = {
     id,
@@ -93,9 +101,7 @@ app.post('/address', (req, res) => {
     .status(201).location(`http://localhost:8000/address/${id}`).json({id: id})
   res
     .send('All validation passed');
-    
 });
-
 
 app.use(function errorHandler(error, req, res, next) {
   let response;
@@ -107,6 +113,7 @@ app.use(function errorHandler(error, req, res, next) {
   }
   res.status(500).json(response);
 });
+
 app.delete('/address/:addressId', (req, res) => {
   const { addressId } = req.params;
   const index = address.findIndex(u => u.id === addressId);
