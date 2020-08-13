@@ -13,8 +13,8 @@ app.use(morgan(morganOption));
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
-app.get('/address', validateBearerToken);
-
+app.post('/address', validateBearerToken);
+app.delete('/address', validateBearerToken);
 
 const address = [{
   'id': 'kgukyfukgil',
@@ -27,6 +27,14 @@ const address = [{
   'zip': "10101"
 }]
 
+function validateBearerToken(req, res, next) {
+  const apiToken = process.env.API_TOKEN
+  const authToken = req.get('Authorization')
+  if (!authToken || authToken.split(' ')[1] !== apiToken) {
+    return res.status(401).json({ error: 'None shall pass' })
+  }
+  next()
+}
 
 app.get('/', (req, res) => {
   res
@@ -41,7 +49,7 @@ app.post('/address', (req, res) => {
     return res
       .status(400)
       .send('First Name required');
-  }
+  }  
 
   if (!lastName) {
     return res
@@ -130,12 +138,4 @@ app.delete('/address/:id', (req, res) => {
   res.send('Deleted');
 });
 
-function validateBearerToken(req, res, next) {
-  const apiToken = process.env.API_TOKEN
-  const authToken = req.get('Authorization')
-  if (!authToken || authToken.split(' ')[1] !== apiToken) {
-    return res.status(401).json({ error: 'None shall pass' })
-  }
-  next()
-}
 module.exports = app;
