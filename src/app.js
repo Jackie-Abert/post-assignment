@@ -13,6 +13,7 @@ app.use(morgan(morganOption));
 app.use(helmet());
 app.use(cors());
 app.use(express.json());
+app.get('/address', validateBearerToken);
 
 
 const address = [{
@@ -27,7 +28,7 @@ const address = [{
 }]
 
 
-app.get('/address', (req, res) => {
+app.get('/', (req, res) => {
   res
     .json(address);
 });
@@ -114,14 +115,14 @@ app.use(function errorHandler(error, req, res, next) {
   res.status(500).json(response);
 });
 
-app.delete('/address/:addressId', (req, res) => {
+app.delete('/address/:id', (req, res) => {
   const { addressId } = req.params;
   const index = address.findIndex(u => u.id === addressId);
   // make sure we actually find a user with that id
   if (index === -1) {
     return res
-      .status(404)
-      .send('User not found');
+      .status(204)
+      .end();
   }
 
   users.splice(index, 1);
@@ -129,4 +130,12 @@ app.delete('/address/:addressId', (req, res) => {
   res.send('Deleted');
 });
 
+function validateBearerToken(req, res, next) {
+  const apiToken = process.env.API_TOKEN
+  const authToken = req.get('Authorization')
+  if (!authToken || authToken.split(' ')[1] !== apiToken) {
+    return res.status(401).json({ error: 'None shall pass' })
+  }
+  next()
+}
 module.exports = app;
